@@ -19,7 +19,7 @@ import (
 const (
 	signatureVersion = "2"
 	signatureMethod  = "HmacSHA1"
-	timeFormat       = "20060102T150405Z"
+	timeFormat       = time.RFC1123Z
 )
 
 type signer struct {
@@ -127,9 +127,6 @@ func (v2 *signer) Sign() error {
 }
 
 func (v2 *signer) buildCanonicalizedResource() {
-	//v2.Request.URL.RawQuery = strings.Replace(v2.Query.Encode(), "+", "%20", -1)
-	fmt.Printf("DEBUG Opaque: %#v\n", v2.Request.URL.Opaque)
-
 	// This is terrible, but host and path seem to never bet set,
 	// so we are always going back to the opaque to figure these out
 	// better way?  must be?
@@ -139,7 +136,6 @@ func (v2 *signer) buildCanonicalizedResource() {
 	if v2.Request.URL.Path == "" {
 		v2.Request.URL.Path = "/" + strings.Join(strings.Split(v2.Request.URL.Opaque, "/")[3:], "/")
 	}
-	fmt.Printf("DEBUG Path: %#v\n", v2.Request.URL.Path)
 
 	if v2.PathStyle {
 		v2.canonicalResource = v2.Request.URL.Path
@@ -154,8 +150,6 @@ func (v2 *signer) buildCanonicalizedResource() {
 			v2.canonicalResource = "/"
 		}
 	}
-
-	fmt.Printf("DEBUG Raw: %#v\n", v2.Request.URL.RawQuery)
 
 	first := true
 	subResources := "acl,lifecycle,location,logging,notification,partNumber,policy,requestPayment,torrent,uploadId,uploads,versionId,versioning,versions,website"
